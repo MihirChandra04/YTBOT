@@ -1,0 +1,31 @@
+/* Force full height layout */
+html, body, .main {
+    height: 100%;
+}
+
+/* Flex container to push footer down */
+.stApp {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Main content grows to push footer down */
+.stApp > div {
+    flex-grow: 1;
+}
+
+/* Sticky footer styling */
+.footer {
+    text-align: center;
+    color: #aaa;
+    font-size: 14px;
+    padding: 10px 0;
+    margin-top: auto;
+}
+
+.footer a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
