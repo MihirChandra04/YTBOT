@@ -3,7 +3,7 @@ import os
 import re
 import asyncio
 from dotenv import load_dotenv
-from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound,CouldNotRetrieveTranscript
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -76,10 +76,22 @@ def extract_video_id(url):
 # Get transcript
 def get_transcript(video_id):
     try:
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id, languages=["hi", "en"])
-        return " ".join(chunk["text"] for chunk in transcript_list)
-    except (TranscriptsDisabled, NoTranscriptFound):
-        return None
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+
+        try:
+            # Try to find manually uploaded English transcript
+            transcript = transcript_list.find_transcript(['en'])
+        except NoTranscriptFound:
+            # If not found, try auto-generated English
+            transcript = transcript_list.find_generated_transcript(['en'])
+
+        return " ".join(chunk["text"] for chunk in transcript.fetch())
+
+    except (TranscriptsDisabled, NoTranscriptFound, CouldNotRetrieveTranscript):
+        return "Transcript not available for this video."
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return "Transcript not available for this video."
 
 # Chunking
 def split_into_chunks(text):

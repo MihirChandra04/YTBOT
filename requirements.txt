@@ -1,5 +1,5 @@
 streamlit
-youtube-transcript-api
+youtube-transcript-api==1.2.0
 langchain
 langchain-core
 langchain-community
@@ -9,3 +9,4 @@ sentence-transformers
 faiss-cpu
 python-dotenv
 langchain-google-genai
+# youtube-transcript-api==0.4.5
