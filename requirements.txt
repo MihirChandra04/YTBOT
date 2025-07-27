@@ -9,4 +9,5 @@ sentence-transformers
 faiss-cpu
 python-dotenv
 langchain-google-genai
+google-generativeai
 # youtube-transcript-api==0.4.5

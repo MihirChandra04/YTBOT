@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import re
 import asyncio
-from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound,CouldNotRetrieveTranscript
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
@@ -10,10 +9,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+import google.generativeai as genai
 
-#  Load API keys from .env
-load_dotenv()
-os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY", "your-fallback-key-here")
+# Gemini setup
+os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
 # Ensure event loop exists (for async)
 try:
@@ -25,7 +24,7 @@ except RuntimeError:
 @st.cache_resource
 def get_llm():
     return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
+        model="gemini-1.5-flash",
         temperature=0.3,
         max_tokens=None,
         timeout=None,
