@@ -68,9 +68,22 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 # Extract YouTube video ID
+# def extract_video_id(url):
+#     match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", url)
+#     return match.group(1) if match else None
+
+from urllib.parse import urlparse, parse_qs
+
 def extract_video_id(url):
-    match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", url)
-    return match.group(1) if match else None
+    parsed_url = urlparse(url)
+
+    if "youtube.com" in parsed_url.netloc:
+        query = parse_qs(parsed_url.query)
+        return query.get("v", [None])[0]
+    elif "youtu.be" in parsed_url.netloc:
+        return parsed_url.path.lstrip("/")
+    return None
+
 
 # Get transcript
 def get_transcript(video_id):
@@ -121,6 +134,12 @@ parser = StrOutputParser()
 #  UI Inputs
 video_url = st.text_input("🎥 Enter a YouTube video link:")
 user_input = st.chat_input("💬 Ask something about the video")
+
+
+
+video_id = extract_video_id(video_url)
+st.write("Video ID:", video_id)
+
 
 if video_url:
     video_id = extract_video_id(video_url)
