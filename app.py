@@ -86,24 +86,48 @@ def extract_video_id(url):
 
 
 # Get transcript
+# def get_transcript(video_id):
+#     try:
+#         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+
+#         try:
+#             # Try to find manually uploaded English transcript
+#             transcript = transcript_list.find_transcript(['en'])
+#         except NoTranscriptFound:
+#             # If not found, try auto-generated English
+#             transcript = transcript_list.find_generated_transcript(['en'])
+
+#         return " ".join(chunk["text"] for chunk in transcript.fetch())
+
+#     except (TranscriptsDisabled, NoTranscriptFound, CouldNotRetrieveTranscript):
+#         return "Transcript not available for this video."
+#     except Exception as e:
+#         print(f"Unexpected error: {e}")
+#         return "Transcript not available for this video."
+
+
+
 def get_transcript(video_id):
     try:
         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        print("✅ Transcript languages found:", transcript_list)
 
+        # Manually print languages
+        for transcript in transcript_list:
+            print("▶ Language:", transcript.language_code)
+
+        # Try manually uploaded English transcript first
         try:
-            # Try to find manually uploaded English transcript
-            transcript = transcript_list.find_transcript(['en'])
+            transcript = transcript_list.find_transcript(['en', 'hi'])
         except NoTranscriptFound:
-            # If not found, try auto-generated English
-            transcript = transcript_list.find_generated_transcript(['en'])
+            transcript = transcript_list.find_generated_transcript(['en', 'hi'])
 
         return " ".join(chunk["text"] for chunk in transcript.fetch())
 
-    except (TranscriptsDisabled, NoTranscriptFound, CouldNotRetrieveTranscript):
-        return "Transcript not available for this video."
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        print(f"❌ Transcript fetch error: {e}")
         return "Transcript not available for this video."
+
 
 # Chunking
 def split_into_chunks(text):
