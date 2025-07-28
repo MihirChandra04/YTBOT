@@ -106,7 +106,7 @@ def embed_chunks(chunks):
 template = """
 You are a helpful assistant.
 Use only the context from the transcript to answer.
-If the context is not enough, just say "I don't know and
+If the answer is not in the context, say "Sorry, I don't know.and if u can answer
 respond in the same language as the context provided."
 
 Context:
@@ -130,10 +130,16 @@ if video_url:
 
     if not transcript:
         st.error("Transcript not available for this video.")
+        st.stop()
     else:
         with st.spinner("🔎 Building knowledge base..."):
             chunks = split_into_chunks(transcript)
             vector_store = embed_chunks(chunks)
+
+            st.write("📑 Sample chunk:", chunks[0].page_content[:300])
+            st.write("📊 Total chunks created:", len(chunks))
+
+
             retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 4})
 
             llm = get_llm()
@@ -146,6 +152,12 @@ if video_url:
             generated_responses = [msg["content"] for msg in st.session_state.chat_history if msg["role"] == "assistant"]
 
             retrieved_docs = retriever.invoke(user_input)
+
+
+            st.write("📍 Retrieved Docs:", retrieved_docs)
+
+
+
             context_text = "\n\n".join([doc.page_content for doc in retrieved_docs])
 
             #Build conversation history
@@ -167,6 +179,14 @@ if video_url:
 
             with st.spinner("💬 Thinking..."):
                 try:
+
+
+
+                    st.subheader("📋 Final Prompt Sent to LLM")
+                    st.code(final_prompt, language="markdown")
+
+
+
                     raw_response = llm.invoke(final_prompt)
                     answer=raw_response.content
                     st.session_state.chat_history.append({"role": "assistant", "content": answer})
